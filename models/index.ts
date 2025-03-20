@@ -2,6 +2,8 @@ import { User, UserType } from "./User";
 import { UserChannel } from "./UserChannel";
 import { Channel } from "./Channel";
 import { ChatMessage } from "./ChatMessage";
+import { HumanMessage } from "./HumanMessage";
+import { AIMessage } from "./AIMessage";
 
 User.hasMany(UserChannel, {
   foreignKey: "userId",
@@ -28,4 +30,4 @@ ChatMessage.belongsTo(UserChannel, {
   as: "userChannel",
 });
 
-export { User, UserType, UserChannel, Channel, ChatMessage };
+export { User, UserType, UserChannel, Channel, ChatMessage, HumanMessage, AIMessage };

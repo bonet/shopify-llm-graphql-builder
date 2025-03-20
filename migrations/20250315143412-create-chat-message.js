@@ -16,6 +16,10 @@ module.exports = {
       content: {
         type: Sequelize.TEXT
       },
+      role: {
+        type: Sequelize.ENUM('human', 'ai'),
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
