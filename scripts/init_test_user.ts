@@ -1,5 +1,5 @@
 import { InferCreationAttributes } from "sequelize";
-import { User, Channel, UserChannel, UserType } from "../models"
+import { User, Channel, UserChannel, UserType, ChatMessage } from "../models"
 
 async function main() {
   let user = await User.findOne({
@@ -51,7 +51,12 @@ async function main() {
       channelId: channel.id,
     } as InferCreationAttributes<UserChannel>);
   }
-}
 
+  await ChatMessage.destroy({
+    where: {
+      userChannelId: userChannel.id
+    }
+  });
+}
 
 main();
