@@ -3,7 +3,7 @@ import { InferCreationAttributes, Op } from "sequelize";
 import { callConversationTier1 } from "../../services/openai";
 import { HumanMessage, UserChannel, ChatMessage } from "../../models";
 import { logger } from "../../config/logger";
-
+import { chatApp } from "../../services/langgraph";
 const router = express.Router();
 
 router.post("/", async (req: Request, res: Response): Promise<any> => {
@@ -20,22 +20,12 @@ router.post("/", async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ error: "User channel not found" });
     }
 
-    await HumanMessage.create({
-      userChannelId: userChannel.id,
-      content,
-      createdAt: new Date(),
-    } as InferCreationAttributes<ChatMessage>);
+    const config = { configurable: { userChannel: userChannel } };
+    const chatResult = await chatApp.invoke({
+      inputMessage: content
+    }, config);
 
-    let chatMessages = await ChatMessage.findAll({
-      where: {
-        userChannelId: user_channel_id,
-      },
-      order: [["createdAt", "ASC"]],
-    });
-
-    const botTier1Response = await callConversationTier1(chatMessages);
-
-    res.json(botTier1Response.queries);
+    res.json(chatResult.messages[chatResult.messages.length - 1]);
   } catch (error) {
     logger.error("Error processing message:", error);
     res.status(500).json({ error: "Internal server error" });

@@ -24,6 +24,8 @@
   "author": "Bonet Sugiarto",
   "license": "ISC",
   "dependencies": {
+    "@langchain/core": "^0.3.37",
+    "@langchain/langgraph": "^0.2.72",
     "@langchain/openai": "^0.4.2",
     "@types/cors": "^2.8.17",
     "@zilliz/milvus2-sdk-node": "^2.5.6",
