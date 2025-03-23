@@ -1,6 +1,7 @@
 import {
   StateGraph,
   Annotation,
+  Send,
   START,
   END,
 } from "@langchain/langgraph";
@@ -56,9 +57,18 @@ const createTier1Message = async (
   config?: RunnableConfig
 ): Promise<any> => {
   console.log("in createTier1Message");
+
+  const chatMessages = await ChatMessage.findAll({
+    where: {
+      userChannelId: config?.configurable?.userChannel.id,
+    },
+  });
+
   const botTier1Response = await callConversationTier1(
-    config?.configurable?.userChannel.messages || []
+    chatMessages
   );
+
+  console.log("botTier1Response: ", botTier1Response);
 
   return {
     tier1Responses: botTier1Response.queries,
@@ -74,17 +84,29 @@ const createTier2Message = async (
     state.queryMessage,
     state.queryType
   );
-
+  console.log("botTier2Response: ", botTier2Response);
   return {
-    outputMessage: botTier2Response,
+    outputMessage: botTier2Response[botTier2Response.length - 1].name,
   };
+};
+
+const continueToTier2 = (state: typeof OverallState.State) => {
+  return state.tier1Responses.map((query) => {
+    console.log("in continueToTier2");
+    return new Send("createTier2Message", {
+      queryMessage: query.message,
+      queryType: query.api_category,
+    });
+  });
 };
 
 const workflow = new StateGraph(OverallState)
   .addNode("createHumanMessage", createHumanMessage)
   .addNode("createTier1Message", createTier1Message)
+  .addNode("createTier2Message", createTier2Message)
   .addEdge(START, "createHumanMessage")
   .addEdge("createHumanMessage", "createTier1Message")
-  .addEdge("createTier1Message", END);
+  .addConditionalEdges("createTier1Message", continueToTier2)
+  .addEdge("createTier2Message", END);
 
 export const chatApp = workflow.compile();

@@ -1,7 +1,5 @@
 import express, { Request, Response } from "express";
-import { InferCreationAttributes, Op } from "sequelize";
-import { callConversationTier1 } from "../../services/openai";
-import { HumanMessage, UserChannel, ChatMessage } from "../../models";
+import { UserChannel } from "../../models";
 import { logger } from "../../config/logger";
 import { chatApp } from "../../services/langgraph";
 const router = express.Router();

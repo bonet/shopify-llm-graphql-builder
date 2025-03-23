@@ -12,15 +12,16 @@ export const searchMilvus = async (
     const search = await milvus.search({
       vector: vector,
       collection_name: collectionName,
-      output_fields: ["object", "name", "kind"],
+      output_fields: ["object", "name", "type", "description", "kind"],
+      limit: 100,
       filter: filter,
     });
-    const res = search.results.filter((result) => result.score > 0.7);
-    if (res.length > 0) {
-      return res;
+    const result = search.results.filter((result) => result.score > 0.7);
+    if (result.length > 0) {
+      return result;
     }
 
-    return res;
+    return result;
   } catch (error) {
     throw error;
   }
@@ -31,9 +32,9 @@ export const recursiveSearchMilvus = async (
   query: string,
   filter = ""
 ) => {
-  const vector = await embeddings.embedQuery(query);
-
   try {
+    const vector = await embeddings.embedQuery(query);
+    console.log("In recursiveSearchMilvus");
     const search = await milvus.search({
       vector: vector,
       collection_name: collectionName,
@@ -41,6 +42,7 @@ export const recursiveSearchMilvus = async (
       limit: 100,
       filter: filter,
     });
+    console.log("search: ", search);
     const result = search.results.filter((result) => result.score > 0.7);
     if (result.length > 0) {
       for (const res of result) {

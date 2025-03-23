@@ -70,7 +70,6 @@ empty JSON object. DO NOT make up sentences.
 }
   `;
 
-    console.log("userQueries", userQueries);
     const response = await shopifyGraphQlQueryListModel.invoke([
       {
         role: "system",
@@ -81,7 +80,7 @@ empty JSON object. DO NOT make up sentences.
         content: query.content,
       })),
     ]);
-    console.log("response", response);
+    //console.log("response", response);
     return response;
   } catch (error) {
     throw new Error((error as Error).message);
@@ -92,6 +91,10 @@ export const callConversationTier2 = async (
   userQuery: string,
   shopifyQuery: string
 ): Promise<any[]> => {
+
+  console.log("In callConversationTier2");
+  console.log("userQuery: ", userQuery);
+  console.log("shopifyQuery: ", shopifyQuery);
   try {
     let data: any[] = [];
     if (shopifyQuery === "customers") {
