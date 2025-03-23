@@ -1,5 +1,6 @@
 import { ChatMessage } from "../models";
 import { shopifyGraphQlQueryListModel } from "../config/openai";
+import { recursiveSearchMilvus } from "./milvus";
 
 export const callConversationTier1 = async (userQueries: ChatMessage[]) => {
   try {
@@ -82,6 +83,38 @@ empty JSON object. DO NOT make up sentences.
     ]);
     console.log("response", response);
     return response;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+};
+
+export const callConversationTier2 = async (
+  userQuery: string,
+  shopifyQuery: string
+): Promise<any[]> => {
+  try {
+    let data: any[] = [];
+    if (shopifyQuery === "customers") {
+      data = await recursiveSearchMilvus(
+        "Object",
+        userQuery,
+        `object=='Customer'`
+      );
+    } else if (shopifyQuery === "orders") {
+      data = await recursiveSearchMilvus(
+        "Object",
+        userQuery,
+        `object=='Order'`
+      );
+    } else if (shopifyQuery === "fulfillmentOrders") {
+      data = await recursiveSearchMilvus(
+        "Object",
+        userQuery,
+        `object=='FulfillmentOrder'`
+      );
+    }
+
+    return data;
   } catch (error) {
     throw new Error((error as Error).message);
   }

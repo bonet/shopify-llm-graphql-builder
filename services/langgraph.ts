@@ -11,7 +11,7 @@ import {
   HumanMessage,
   UserChannel,
 } from "../models";
-import { callConversationTier1 } from "./openai";
+import { callConversationTier1, callConversationTier2 } from "./chat_processor";
 
 const OverallState = Annotation.Root({
   errors: Annotation<string[]>,
@@ -30,6 +30,11 @@ const OverallState = Annotation.Root({
     default: () => [],
   }),
 });
+
+interface Tier1ResponseState {
+  queryMessage: string;
+  queryType: string;
+}
 
 const createHumanMessage = async (
   state: typeof OverallState.State,
@@ -57,6 +62,21 @@ const createTier1Message = async (
 
   return {
     tier1Responses: botTier1Response.queries,
+  };
+};
+
+const createTier2Message = async (
+  state: Tier1ResponseState,
+  config?: RunnableConfig
+): Promise<Partial<typeof OverallState.State>> => {
+  console.log("in createTier2Message");
+  const botTier2Response = await callConversationTier2(
+    state.queryMessage,
+    state.queryType
+  );
+
+  return {
+    outputMessage: botTier2Response,
   };
 };
 
