@@ -34,3 +34,14 @@ export const shopifyGraphQlQueryListModel = new ChatOpenAI(
   name: "extract_queries",
   strict: true,
 });
+
+const shopifyGraphQlQuerySchema = z.object({
+  query: z.string().nullable().describe("Query for the Shopify Admin API"),
+});
+
+export const shopifyGraphQlQueryModel = new ChatOpenAI(
+  config
+).withStructuredOutput(shopifyGraphQlQuerySchema, {
+  name: "extract_query",
+  strict: true,
+});
