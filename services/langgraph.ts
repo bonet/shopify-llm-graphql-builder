@@ -17,6 +17,15 @@ import { callConversationTier1, callConversationTier2 } from "./chat_processor";
 const OverallState = Annotation.Root({
   errors: Annotation<string[]>,
   tier1Responses: Annotation<any[]>,
+  tier2Responses: Annotation<string[]>({
+    reducer: (left: string[], right: string | string[]) => {
+      if (Array.isArray(right)) {
+        return left.concat(right);
+      }
+      return left.concat([right]);
+    },
+    default: () => [],
+  }),
   userChannel: Annotation<UserChannel>,
   inputMessage: Annotation<string>,
   outputMessage: Annotation<string>,
@@ -85,8 +94,9 @@ const createTier2Message = async (
     state.queryType
   );
   console.log("botTier2Response: ", botTier2Response);
+
   return {
-    outputMessage: botTier2Response[botTier2Response.length - 1].name,
+    tier2Responses: botTier2Response.query ? [botTier2Response.query] : [],
   };
 };
 

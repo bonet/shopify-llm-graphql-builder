@@ -34,7 +34,7 @@ export const recursiveSearchMilvus = async (
 ) => {
   try {
     const vector = await embeddings.embedQuery(query);
-    console.log("In recursiveSearchMilvus");
+    console.log("In recursiveSearchMilvus: ", query);
     const search = await milvus.search({
       vector: vector,
       collection_name: collectionName,
@@ -42,7 +42,7 @@ export const recursiveSearchMilvus = async (
       limit: 100,
       filter: filter,
     });
-    console.log("search: ", search);
+    console.log("search.results: ", search.results.slice(0, 3));
     const result = search.results.filter((result) => result.score > 0.7);
     if (result.length > 0) {
       for (const res of result) {
