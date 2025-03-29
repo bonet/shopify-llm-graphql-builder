@@ -44,14 +44,14 @@ Run `npm run dev`
 
 # Usage Instruction
 
-** REQUEST **
+*REQUEST*
 ```
 curl -XPOST http://localhost:3000/graphql  -H "Content-Type: application/json" \
 -d '{"user_channel_id": 1, "content": "Give me the last 5 orders, each with the \
 customer name"}'
 ```
 
-** RESPONSE **
+*RESPONSE*
 ```
 {
   "role":"ai",

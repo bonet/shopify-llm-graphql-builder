@@ -10,6 +10,7 @@ import { InferCreationAttributes } from "sequelize";
 import {
   ChatMessage,
   HumanMessage,
+  AIMessage,
   UserChannel,
 } from "../models";
 import { callConversationTier1, callConversationTier2 } from "./chat_processor";
@@ -58,6 +59,21 @@ const createHumanMessage = async (
 
   return {
     messages: [humanMessage],
+  };
+};
+
+const createAIMessage = async (
+  state: typeof OverallState.State,
+  config?: RunnableConfig
+): Promise<Partial<typeof OverallState.State>> => {
+  const aiMessage = await AIMessage.create({
+    userChannelId: config?.configurable?.userChannel.id,
+    content: state.tier2Responses.join("\n"),
+    createdAt: new Date(),
+  } as InferCreationAttributes<ChatMessage>);
+
+  return {
+    messages: [aiMessage],
   };
 };
 
@@ -114,9 +130,11 @@ const workflow = new StateGraph(OverallState)
   .addNode("createHumanMessage", createHumanMessage)
   .addNode("createTier1Message", createTier1Message)
   .addNode("createTier2Message", createTier2Message)
+  .addNode("createAIMessage", createAIMessage)
   .addEdge(START, "createHumanMessage")
   .addEdge("createHumanMessage", "createTier1Message")
   .addConditionalEdges("createTier1Message", continueToTier2)
-  .addEdge("createTier2Message", END);
+  .addEdge("createTier2Message", "createAIMessage")
+  .addEdge("createAIMessage", END);
 
 export const chatApp = workflow.compile();
